@@ -1,0 +1,42 @@
+apply plugin: 'com.android.library'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.neenbedankt.android-apt'
+
+android {
+    compileSdkVersion rootProject.ext.androidCompileSdkVersion
+    buildToolsVersion rootProject.ext.androidBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.androidMinSdkVersion
+        targetSdkVersion rootProject.ext.androidTargetSdkVersion
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    def dataDependencies = rootProject.ext.dataDependencies
+    compile dataDependencies.gson
+    compile dataDependencies.beam
+    compile dataDependencies.utils
+    compile dataDependencies.retrofit
+    compile dataDependencies.dagger
+    apt dataDependencies.daggerCompiler
+    //compile dataDependencies.eventBus
+    compile dataDependencies.okHttp
+    compile dataDependencies.rxAndroid
+    compile dataDependencies.rxJava
+    compile dataDependencies.qiniu
+    compile project(':domain')
+    compile project(':IMKit')
+    compile project(':jpush')
+    compile files('libs/AMap_Location_v2.0.0_20151117.jar')
+}

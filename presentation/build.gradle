@@ -1,0 +1,125 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
+Properties props = new Properties()
+props.load(new FileInputStream(file("../config/signing.properties")))
+props.load(new FileInputStream(file("../config/key.properties")))
+
+android {
+    compileSdkVersion rootProject.ext.androidCompileSdkVersion
+    buildToolsVersion rootProject.ext.androidBuildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.androidMinSdkVersion
+        targetSdkVersion rootProject.ext.androidTargetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        renderscriptTargetApi 23
+        renderscriptSupportModeEnabled true
+        manifestPlaceholders = [
+                applicationId   : rootProject.ext.applicationId,
+                UMENG_APPKEY    : props['UMENG_APPKEY'],
+                AMAP_APPKEY     : props['AMAP_APPKEY'],
+                RONGYUN_APPKEY  : props['RONGYUN_APPKEY'],
+                JPUSH_APPKEY    : props['JPUSH_APPKEY'],
+                SMS_MOB_APPKEY    : props['SMS_MOB_APPKEY'],
+                SMS_MOB_APPSECRET    : props['SMS_MOB_APPSECRET'],
+        ]
+    }
+
+    productFlavors {
+        xiaomi{}
+        baidu{}
+        wandoujia{}
+        origin{}
+        qihu360{}
+    }
+
+
+    productFlavors.all { flavor ->
+        manifestPlaceholders.put("UMENG_CHANNEL",name)
+    }
+
+    signingConfigs {
+        release{
+            keyAlias props['KEY_ALIAS']
+            keyPassword props['KEY_PASSWORD']
+            storePassword props['KEYSTORE_PASSWORD']
+        }
+    }
+
+
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')
+                            &&'release'.equals(variant.buildType.name)) {
+                        def apkFile = new File(
+                                output.outputFile.getParent(),
+                                "MooShow_${variant.flavorName}_v${variant.versionName}_${buildTime()}.apk")
+                        output.outputFile = apkFile
+                    }
+                }
+            }
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
+        debug {
+            signingConfig signingConfigs.release
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+    def presentationDependencies = rootProject.ext.presentationDependencies
+    compile presentationDependencies.card
+    compile presentationDependencies.appcompat
+    compile presentationDependencies.design
+    compile presentationDependencies.card
+    compile presentationDependencies.beam
+    compile presentationDependencies.swipeBackHelper
+    compile presentationDependencies.butterKnife
+    compile (presentationDependencies.utils)
+    compile (presentationDependencies.materialDialogsCore){ transitive = true }
+    compile presentationDependencies.tagview
+    compile presentationDependencies.rollviewpager
+    compile presentationDependencies.picasso
+    //compile presentationDependencies.eventBus
+    compile presentationDependencies.rxAndroid
+    compile presentationDependencies.rxJava
+    compile presentationDependencies.exgridview
+    compile presentationDependencies.imageprovider
+    compile presentationDependencies.ripple
+    compile presentationDependencies.recyclerViewHeader
+    compile presentationDependencies.pagerSlidingTabStrip
+    //compile presentationDependencies.photoView
+    compile presentationDependencies.progress
+    compile presentationDependencies.smssdk
+    compile project(':data')
+    compile project(':domain')
+    compile project(':umengfamily')
+    compile project(':jpush')
+
+}
+
+def buildTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
