@@ -1,12 +1,14 @@
 package com.jude.emotionshow.presentation.seed;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bartoszlipinski.recyclerviewheader.RecyclerViewHeader;
 import com.jude.beam.bijection.RequiresPresenter;
@@ -26,7 +28,7 @@ import butterknife.ButterKnife;
  * Created by Mr.Jude on 2015/11/22.
  */
 @RequiresPresenter(CategoryPresenter.class)
-public class CategoryActivity extends BeamDataActivity<CategoryPresenter, CategoryDetail> {
+public class CategoryActivity extends BeamDataActivity<CategoryPresenter, CategoryDetail> implements SwipeRefreshLayout.OnRefreshListener{
 
     @Bind(R.id.back)
     LinearLayout back;
@@ -48,6 +50,8 @@ public class CategoryActivity extends BeamDataActivity<CategoryPresenter, Catego
     TextView praiseCount;
     @Bind(R.id.container_praise)
     LinearLayout containerPraise;
+    @Bind(R.id.swiperefreshlayout)
+    SwipeRefreshLayout swiperefreshlayout;
 
     private SeedAdapter adapter;
 
@@ -62,6 +66,7 @@ public class CategoryActivity extends BeamDataActivity<CategoryPresenter, Catego
         ButterKnife.bind(this);
         back.setOnClickListener(v -> finish());
         recycler.setAdapter(adapter = new SeedAdapter(this));
+        swiperefreshlayout.setOnRefreshListener(this);
         adapter.setMore(new View(this), () -> {
             getPresenter().loadMore();
         });
@@ -71,12 +76,17 @@ public class CategoryActivity extends BeamDataActivity<CategoryPresenter, Catego
     public void setData(CategoryDetail data) {
         title.setText(data.getName());
         Picasso.with(this).load(ImageModel.getLargeImage(data.getBackground())).into(background);
-        seedCount.setText(data.getSeedCount()+"");
-        visitCount.setText(data.getVisitCount()+"");
-        praiseCount.setText(data.getPraiseCount()+"");
+        seedCount.setText(data.getSeedCount() + "");
+        visitCount.setText(data.getVisitCount() + "");
+        praiseCount.setText(data.getPraiseCount() + "");
     }
 
-    public void addSeed(List<Seed> data){
+    public void addSeed(List<Seed> data) {
         adapter.addAll(data);
+    }
+
+    @Override
+    public void onRefresh() {
+        Toast.makeText(this, "刷新中", Toast.LENGTH_SHORT).show();
     }
 }
