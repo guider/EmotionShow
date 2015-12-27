@@ -88,5 +88,10 @@ public class CategoryActivity extends BeamDataActivity<CategoryPresenter, Catego
     @Override
     public void onRefresh() {
         Toast.makeText(this, "刷新中", Toast.LENGTH_SHORT).show();
+        getPresenter().refresh();
     }
+    public void onRefreshComplete(){
+        swiperefreshlayout.setRefreshing(false);
+    }
+
 }

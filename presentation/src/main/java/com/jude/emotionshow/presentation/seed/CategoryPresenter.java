@@ -37,4 +37,14 @@ public class CategoryPresenter extends BeamDataActivityPresenter<CategoryActivit
             }
         });
     }
+    void refresh(){
+        SeedModel.getInstance().getCategorySeedList(data.getId(),1,data.getType()).subscribe(new ServiceResponse<List<Seed>>(){
+            @Override
+            public void onNext(List<Seed> seeds) {
+                getView().addSeed(seeds);
+                getView().onRefreshComplete();
+            }
+        });
+    }
+
 }
